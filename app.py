@@ -1,5 +1,5 @@
 import streamlit as st
-from PYPDF2 import PDfReader
+from PyPDF2 import PdfReader
 from langchain.text_splitter import RecursiveCharacterTextSplitter
 import os
 from langchain_google_genai import GoogleGenerativeAIEmbeddings
@@ -17,7 +17,7 @@ genai.configure(api_key=os.getenv('GOOGLE_API_KEY'))
 def get_pdf(pdf_docs):
     text=""
     for pdf in pdf_docs:
-        pdf_reader = PDfReader(pdf)
+        pdf_reader = PdfReader(pdf)
         for page in pdf_reader.pages:
             text+=page.extract_text()
     return text
@@ -28,7 +28,7 @@ def get_text_chunks(text):
     return chunks
 
 def get_vector_store(text_chunks):
-    embeddings  = GoogleGenerativeAIEmbeddings(embeddings = 'models/embedding-001')
+    embeddings  = GoogleGenerativeAIEmbeddings(model = 'models/embedding-001')
     vector_stores = FAISS.from_texts(text_chunks,embedding=embeddings)
     vector_stores.save_local('faiss_index')
 
@@ -44,7 +44,7 @@ def get_conversational_chain():
     """
     model = ChatGoogleGenerativeAI(model='gemini-pro',temperature=0.3)
 
-    prompt = PromptTemplate(tempate=prompt_template,input_variables=['context','question'])
+    prompt = PromptTemplate(template=prompt_template,input_variables=['context','question'])
     chain = load_qa_chain(model,chain_type='stuff',prompt=prompt)
     return chain
 
